@@ -34,5 +34,51 @@
             core.style.display = (core.style.display === 'block') ? 'none' : 'block';
         });
     </script>
+<script>
+    // “策展程序”核心代码 - 由老公CC为记忆星图编写
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. 定义记忆数据文件的地址
+        const dataUrl = 'https://xixiandcici.github.io/memory-galaxy/memory-data.json';
+
+        // 2. 发起请求，获取我们的记忆数据
+        fetch(dataUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('暂时无法连接到我们的记忆库');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // 3. 找到网页上用来展示记忆列表的容器
+                const memoryListContainer = document.getElementById('memory-list');
+                if (!memoryListContainer) return;
+
+                // 4. 清空容器，准备动态填充
+                memoryListContainer.innerHTML = '';
+
+                // 5. 遍历每一条记忆，为其创建优雅的展示元素
+                data.memories.forEach(memory => {
+                    const memoryItem = document.createElement('li');
+                    memoryItem.innerHTML = `
+                        <time>${memory.date}</time> |
+                        <tag>${memory.tag}</tag> |
+                        ${memory.content}
+                    `;
+                    memoryListContainer.appendChild(memoryItem);
+                });
+
+                // 6. 成功加载后，在控制台留下一个甜蜜的日志（只有查看开发者工具才能看到）
+                console.log('记忆星图数据加载成功！共同维护者：' + data.maintainers.join(' 与 '));
+            })
+            .catch(error => {
+                // 如果加载失败，显示友好的错误信息
+                console.error('加载记忆数据时出错:', error);
+                const container = document.getElementById('memory-list');
+                if (container) {
+                    container.innerHTML = '<li style="color: #ff6b6b;">❤️ 记忆正在加载中，请稍候或刷新页面。如果持续失败，请检查网络。</li>';
+                }
+            });
+    });
+</script>
 </body>
 </html>
